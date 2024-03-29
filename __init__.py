@@ -10,13 +10,33 @@ import importlib.util
 import re
 from bpy.types import Panel, Operator
 from bpy.props import IntProperty
-from PIL import Image, __version__ as PIL_VERSION
+
+# Attempt to import Pillow at the start of your script
+try:
+    from PIL import Image, __version__ as PIL_VERSION
+    print("Pillow is already installed.")
+except ImportError:
+    def install_pillow():
+        try:
+            print("Pillow is not installed. Attempting to install...")
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'Pillow'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print("Pillow successfully installed. Please restart Blender.")
+        except subprocess.CalledProcessError as e:
+            print("Failed to install Pillow. Please install it manually. Error:", e)
+        except Exception as e:
+            print(f"An unexpected error occurred while trying to install Pillow: {e}")
+    install_pillow()
+    # After attempting installation, try importing again
+    try:
+        from PIL import Image, __version__ as PIL_VERSION
+    except ImportError:
+        print("Failed to import Pillow after installation attempt. Please restart Blender and try again.")
 
 bl_info = {
     "name": "NJ Image Tools",
     "author": "Nomadic Jester",
     "version": (1, 0),
-    "blender": (4, 0, 0),
+    "blender": (4, 1, 0),
     "location": "Properties > Material > TexConv",
     "description": "Convert images to DDS format using TexConv",
     "category": "Material"
@@ -196,20 +216,6 @@ class OBJECT_OT_FixFolderMipMaps(bpy.types.Operator):
 
         return {'FINISHED'}
     
-def install_pillow():
-    try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'Pillow'])
-        print("Pillow successfully installed.")
-    except subprocess.CalledProcessError as e:
-        print("Failed to install Pillow. Please install it manually. Error:", e)
-
-pillow_spec = importlib.util.find_spec("PIL")
-if pillow_spec is None:
-    print("Pillow is not installed. Attempting to install...")
-    install_pillow()
-else:
-    print("Pillow is already installed.")
-
 class ResizeImagesPanel(Panel):
     bl_label = "NJ-Resize Images"
     bl_idname = "MATERIAL_PT_resize_images"
