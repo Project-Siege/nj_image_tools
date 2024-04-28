@@ -9,12 +9,13 @@ NJ Image Tools is a Blender addon designed to enhance texture management within 
 - **Resize Images**: Resize images using Pillow, supporting a range of preset and custom sizes. (Note: .dds file resizing is not supported)
 - **Compression Format Selection**: Choose from a variety of compression formats for DDS conversion, including BC1_UNORM (DXT1), BC2_UNORM (DXT3), BC3_UNORM (DXT5), and more.
 - **Folder Operations**: Perform mip map fixing on all DDS textures within a selected folder.
+- **Convert Folder to DDS**: New functionality to convert all images in a folder to DDS format with compression format selection.
 
 ## Installation
 
 1. Ensure Blender 4.0.0 or newer is installed on your system.
 2. Download the NJ Image Tools addon.
-3. extract contents and then zip the nj_image_tools folder
+3. Extract the contents and zip the `nj_image_tools` folder.
 4. Open Blender and go to `Edit > Preferences > Add-ons`.
 5. Click `Install` and navigate to the downloaded addon file.
 6. Enable the addon by checking the box next to its name.
@@ -39,6 +40,12 @@ After installation, the addon's functionalities can be accessed from the `Proper
 1. Select the object with the image textures you wish to resize.
 2. In the `NJ-Resize Images` panel, choose a preset size or enter a custom size.
 3. Click `Resize Images` to resize the image textures of the selected object.
+
+### Convert Folder to DDS
+
+1. Select a folder containing images to convert to DDS.
+2. In the `NJ-TexConv` panel, choose the compression format for the folder images.
+3. Click `Convert Folder to DDS` to convert all images in the folder to DDS format.
 
 ## Dependencies
 
