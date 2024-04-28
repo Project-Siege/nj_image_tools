@@ -129,6 +129,28 @@ class ConvertToDDSPanel(bpy.types.Panel):
 
         layout.label(text=f"Selected Folder: {display_path}")
 
+        # Additional Folder Operations for DDS conversion
+        row = layout.row(align=True)
+        row.prop(scene, "compression_format", text="Compression Format for Folder")
+        row = layout.row(align=True)
+
+
+        layout.label(text="Folder Operations for Image Conversion:")
+
+        row = layout.row(align=True)
+        if scene.selected_folder_convert:
+            absolute_folder_path_convert = Path(bpy.path.abspath(scene.selected_folder_convert)).resolve()
+            display_path_convert = str(absolute_folder_path_convert)
+        else:
+            display_path_convert = "No folder selected."
+        row.prop(scene, "selected_folder_convert", text="Folder for Image Conversion")
+        row.operator("object.convert_folder_to_dds", text="Convert Folder to DDS")
+
+        layout.label(text=f"Selected Folder for Image Conversion: {display_path_convert}")
+
+        row = layout.row(align=True)
+        row.prop(scene, "compression_format_folder", text="Compression Format for Folder Images")
+
 # Operator to execute DDS conversion
 class OBJECT_OT_ConvertToDDS(bpy.types.Operator):
     bl_idname = "object.convert_to_dds"
@@ -216,6 +238,33 @@ class OBJECT_OT_FixFolderMipMaps(bpy.types.Operator):
 
         return {'FINISHED'}
     
+# Operator to convert images in a folder to DDS format
+class OBJECT_OT_ConvertFolderToDDS(bpy.types.Operator):
+    bl_idname = "object.convert_folder_to_dds"
+    bl_label = "Convert Folder to DDS"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        selected_folder = context.scene.selected_folder_convert
+        compression_format = context.scene.compression_format_folder
+
+        if selected_folder:
+            # Convert the selected folder path to an absolute path
+            absolute_folder_path = Path(bpy.path.abspath(selected_folder)).resolve()
+
+            dds_folder = absolute_folder_path / "DDS_Converted"
+            dds_folder.mkdir(parents=True, exist_ok=True)
+
+            for file_path in absolute_folder_path.glob('*'):
+                if file_path.is_file():
+                    convert_file(file_path, dds_folder / file_path.name, "DDS", compression_format)
+
+            self.report({'INFO'}, "Folder images converted to DDS.")
+        else:
+            self.report({'ERROR'}, "No folder selected.")
+
+        return {'FINISHED'}
+
 class ResizeImagesPanel(Panel):
     bl_label = "NJ-Resize Images"
     bl_idname = "MATERIAL_PT_resize_images"
@@ -314,6 +363,7 @@ def register():
     bpy.utils.register_class(OBJECT_OT_ConvertToDDS)
     bpy.utils.register_class(OBJECT_OT_FixMipMaps)
     bpy.utils.register_class(OBJECT_OT_FixFolderMipMaps)
+    bpy.utils.register_class(OBJECT_OT_ConvertFolderToDDS)
     bpy.types.Scene.compression_format = bpy.props.EnumProperty(
         items=[
             ("BC1_UNORM", "BC1_UNORM (DXT1)", ""),
@@ -328,14 +378,31 @@ def register():
         description="Compression format for DDS conversion"
     )
     bpy.types.Scene.selected_folder = bpy.props.StringProperty(name="Selected Folder", description="Selected folder for texture operations", subtype='DIR_PATH')
+    bpy.types.Scene.selected_folder_convert = bpy.props.StringProperty(name="Selected Folder for Image Conversion", description="Selected folder for image conversion operations", subtype='DIR_PATH')
+    bpy.types.Scene.compression_format_folder = bpy.props.EnumProperty(
+        items=[
+            ("BC1_UNORM", "BC1_UNORM (DXT1)", ""),
+            ("BC2_UNORM", "BC2_UNORM (DXT3)", ""),
+            ("BC3_UNORM", "BC3_UNORM (DXT5)", ""),
+            ("BC4_UNORM", "BC4_UNORM (ATI1)", ""),
+            ("BC5_UNORM", "BC5_UNORM (3Dc)", ""),
+            ("BC6H_UF16", "BC6H_UF16", ""),
+            ("BC7_UNORM", "BC7_UNORM", "")
+        ],
+        name="Compression Format for Folder",
+        description="Compression format for DDS conversion in folders"
+    )
 
 def unregister():
     bpy.utils.unregister_class(ConvertToDDSPanel)
     bpy.utils.unregister_class(OBJECT_OT_ConvertToDDS)
     bpy.utils.unregister_class(OBJECT_OT_FixMipMaps)
     bpy.utils.unregister_class(OBJECT_OT_FixFolderMipMaps)
+    bpy.utils.unregister_class(OBJECT_OT_ConvertFolderToDDS)
     del bpy.types.Scene.compression_format
     del bpy.types.Scene.selected_folder
+    del bpy.types.Scene.selected_folder_convert
+    del bpy.types.Scene.compression_format_folder
     bpy.utils.unregister_class(ResizeImagesPanel)
     bpy.utils.unregister_class(SetPresetSizeOperator)
     bpy.utils.unregister_class(ResizeImagesOperator)
