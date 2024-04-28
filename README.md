@@ -14,9 +14,10 @@ NJ Image Tools is a Blender addon designed to enhance texture management within 
 
 1. Ensure Blender 4.0.0 or newer is installed on your system.
 2. Download the NJ Image Tools addon.
-3. Open Blender and go to `Edit > Preferences > Add-ons`.
-4. Click `Install` and navigate to the downloaded addon file.
-5. Enable the addon by checking the box next to its name.
+3. extract contents and then zip the nj_image_tools folder
+4. Open Blender and go to `Edit > Preferences > Add-ons`.
+5. Click `Install` and navigate to the downloaded addon file.
+6. Enable the addon by checking the box next to its name.
 
 ## Usage
 
